@@ -71,3 +71,42 @@ bool StableDebounce::update()
   unstableState = currentState;
   return stateChanged;
 }
+
+void ThresholdDebounce::attach(int pin)
+{
+  Debounce::attach(pin);
+  previous_millis = millis();
+}
+
+bool ThresholdDebounce::update()
+{
+  uint8_t currentState = digitalRead(pin);
+
+  numberOfSamples++;
+  if (currentState == HIGH)
+  {
+    highSamples++;
+  }
+
+  stateChanged = false;
+
+  if (millis() - previous_millis >= interval_millis && currentState != debouncedState)
+  {
+    float percentHigh = highSamples / numberOfSamples;
+    uint8_t intervalState = (percentHigh > thresholdValue);
+    if (intervalState != debouncedState)
+    {
+      debouncedState = intervalState;
+      stateChanged = true;
+    }
+    numberOfSamples = 0;
+    highSamples = 0;
+  }
+
+  return stateChanged;
+}
+
+void ThresholdDebounce::threshold(float value)
+{
+  thresholdValue = value;
+}

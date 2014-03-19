@@ -64,4 +64,24 @@ public:
   virtual bool update(); 
 };
 
+/* 
+  The Threshold strategy continuously samples the state of the pin over
+  the interval and fires if the percentage of the time the pin was high
+  was greater than the threshold value.  This is useful for devices that
+  output an inherently noisey signal.
+*/
+
+class ThresholdDebounce : public Debounce
+{
+public:
+  virtual void attach(int pin);
+  virtual bool update();
+  void threshold(float value);
+
+protected:
+  unsigned long numberOfSamples;
+  unsigned long highSamples;
+  float thresholdValue;
+};
+
 #endif
